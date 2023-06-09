@@ -1,0 +1,8 @@
+---
+- name: shell test
+  hosts: test
+  tasks:
+  - name: disk usage
+    shell: 'du -h'
+  - name: memory status
+    shell: 'free'

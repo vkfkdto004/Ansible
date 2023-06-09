@@ -1,0 +1,10 @@
+---
+- name: absent test directory
+  hosts: all
+  tasks:
+  - name: absent directory /test
+    file:
+      path: /test
+      state: absent
+  - name: list root directory
+    shell: 'ls -al /'

@@ -1,0 +1,6 @@
+---
+- name: all pint test
+  hosts: test
+  tasks: 
+  - name: all hosts ping test
+    ping:

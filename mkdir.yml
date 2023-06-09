@@ -1,0 +1,8 @@
+---
+- name: create directory
+  hosts: all
+  tasks:
+  - name: create directory all hosts /test
+    file: path=/test state=directory
+  - name: list root directory
+    shell: 'ls -al / | grep test'
