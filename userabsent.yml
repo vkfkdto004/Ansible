@@ -1,0 +1,18 @@
+---
+- name: user absent
+  hosts: test
+  tasks:
+  - name: absent user a
+    user:
+      name: a
+      state: absent
+  - name: remove home directory
+    shell: 'rm -rf /home/a'
+  - name: remove mailbox directory 
+    shell: 'rm -rf /var/spool/mail/a'
+  - name: ls /home
+    shell: 'ls /home'
+  - name: ls /var/spool/mail
+    shell: 'ls /var/spool/mail'
+
+
