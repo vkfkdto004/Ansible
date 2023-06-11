@@ -1,0 +1,16 @@
+---
+- name: remove httpd apache web server
+  hosts: test
+  tasks:
+  - name: index.html remove
+    file: 
+      path: /var/www/html/index.html
+      state: absent
+  - name: firewall closd port 80/tcp
+    firewalld:
+      port: 80/tcp
+      state: disabled
+  - name: httpd package remove
+    yum:
+      name: httpd
+      state: removed

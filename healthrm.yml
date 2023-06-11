@@ -1,0 +1,16 @@
+---
+- name: remove healthcheck html
+  hosts: test
+  tasks: 
+  - name: health.html remove
+    file:
+      path: /var/www/html/health.html
+      state: absent
+  - name: firewall 80/tcp closed
+    firewalld:
+      port: 80/tcp
+      state: disabled
+  - name: httpd package remove
+    yum:
+      name: httpd
+      state: removed

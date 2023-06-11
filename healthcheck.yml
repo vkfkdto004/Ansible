@@ -1,0 +1,26 @@
+---
+- name: health check in html
+  hosts: test
+  tasks:
+  - name: install yum 
+    yum:
+      name: httpd
+      state: latest
+  - name: firewall open port 80/tcp
+    firewalld:
+      port: 80/tcp
+      state: enabled
+  - name: change setting to index from health
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^DirectoryIndex index.html'
+      line: 'DirectoryIndex health.html'
+  - name: copy health.index file
+    copy:
+      src: health.html
+      dest: /var/www/html/health.html
+  - name: service start httpd
+    service:
+      name: httpd
+      state: startd
+
