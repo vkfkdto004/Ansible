@@ -13,7 +13,7 @@
   - name: change setting to index from health
     lineinfile:
       path: /etc/httpd/conf/httpd.conf
-      regexp: '^DirectoryIndex index.html'
+      regexp: 'DirectoryIndex index.html'
       line: 'DirectoryIndex health.html'
   - name: copy health.index file
     copy:
