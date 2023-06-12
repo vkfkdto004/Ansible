@@ -1,0 +1,66 @@
+---
+- name: install wget & httpd & epel-release & yum-utils & remirepo
+  hosts: web1
+  tasks:
+  - name: install yum
+    yum:
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - wget
+      - httpd
+      - epel-release
+      - yum-utils
+      - http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+  - name: get_url tar
+    get_url:
+      url:  "wget https://ko.wordpress.org/wordpress-5.8.6-ko_KR.tar.gz"
+      dest: ./
+  - name: tar wordpress 
+    shell: "tar xvfz wordpress-5.8.6-ko_KR.tar.gz"
+  - name: copy wordpress/*
+    shell: "cp -a wordpress/* /var/www/html"
+  - name: copy wp-config-sample.php
+    copy:
+      src: /var/www/html/wp-config-sample.php
+      dest: /var/www/html/wp-config.php
+      remote_src: yes
+  - name: repository php74
+    shell: "yum-config-manager --enable remi-php74"
+  - name: install php
+    yum:
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - php
+      - php-common
+      - php-opcache
+      - php-mcrypt
+      - php-cli
+      - php-gd
+      - php-curl
+      - php-mysqlnd
+  - name: change index file
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: 'DirectoryIndex health.html'
+      line: 'DirectoryIndex index.php'
+  - name: change setting db
+    lineinfile:
+      path: /var/www/html/wp-config.php
+      regexp: "{{ item.src }}"
+      line: "{{ item.dest }}"
+    loop:
+     - {src: "database_name_here", dest: "wordpress"}
+     - {src: "username_here", dest: "root"}
+     - {src: "password_here", dest: "It12345@"}
+     - {src: "localhost", dest: "10.0.0.4"}
+  - name: service httpd
+    service:
+      name: httpd
+      state: started
+  - name: firewall open 80/tcp
+    firewalld:
+      port: 80/tcp
+      state: enabled
+
