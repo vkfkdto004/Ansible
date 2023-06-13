@@ -13,8 +13,9 @@
     blockinfile:
       path: /etc/nginx/nginx.conf
       insertafter: '^(\s+servername\s+);'
-      block: |# babo
-         index    hoho.html;
+      block: |
+        # babo
+                index    hoho.html;
 
   - name: web root directory change
     replace:
