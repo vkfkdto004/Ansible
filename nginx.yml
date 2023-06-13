@@ -9,13 +9,11 @@
     loop:
       - epel-release
       - nginx
-  - name: web root directory change-2
-    blockinfile:
+  - name: web root directory change-1
+    lineinfile:
       path: /etc/nginx/nginx.conf
-      insertafter: '^(\s+servername\s+);'
-      block: |
-        # babo
-                index    hoho.html;
+      insertafter: '^(\s+sroot\s+)/html;'
+      line: '^(\s+index\s+)hoho.html;
 
   - name: web root directory change
     replace:
