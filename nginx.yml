@@ -1,0 +1,53 @@
+---
+- name: nginx install & web root directory change
+  hosts: db1
+  tasks:
+  - name: install epel-release & nginx
+    yum:
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - epel-release
+      - nginx
+  - name: web root directory change-2
+    blockinfile:
+      path: /etc/nginx/nginx.conf
+      insertafter: '^(\s+servername\s+);'
+      block: |# babo
+         index    hoho.html;
+
+  - name: web root directory change
+    replace:
+       path: /etc/nginx/nginx.conf
+       regexp: '/usr/share/nginx/html;'
+       replace: '/html;'
+  - name: Create a directory /html
+    file:
+      path: /html
+      state: directory
+
+  - name: Create a file /html/hoho.html
+    file:
+      path: /html/hoho.html
+      state: touch
+
+  - name: bobo.html insert 
+    blockinfile:
+      marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+      path: /html/hoho.html
+      block: |
+        <html>
+        <body>
+        <h1>kws-nginx-webserver</h1>
+        </body>
+        </html>
+
+  - name: firewalld open 80/tcp
+    firewalld:
+      port: 80/tcp
+      state: enabled
+
+  - name: service start nginx
+    service:
+      name: nginx
+      state: started
