@@ -1,0 +1,106 @@
+---
+- name: wordpress download & install, php7.4 install
+  hosts: was1
+  tasks:
+  - name: wget, httpd, php repository, php7.4 repo install
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - wget
+      - httpd
+      - yum-utils
+      - epel-release
+      - http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+      - haproxy
+
+  - name: yum-config-manager config
+    shell:
+      yum-config-manager --enable remi-php74
+
+  - name: php7.4 install
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - php
+        - php-common
+        - php-opcache
+        - php-mcrypt
+        - php-cli
+        - php-gd
+        - php-curl
+        - php-mysqlnd
+
+  - name: url use file download
+    get_url:
+      url: https://ko.wordpress.org/wordpress-5.8.6-ko_KR.tar.gz
+      dest: ./
+
+  - name: unarchive
+    unarchive:
+      src: wordpress-5.8.6-ko_KR.tar.gz
+      dest: ./
+      remote_src: yes 
+
+  - name: index.html change index.php
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: "{{ item.src }}"
+      line: "{{ item.dest }}"
+    loop:
+      - { src: 'DirectoryIndex health.html', dest: 'DirectoryIndex index.php'}
+      - { src: 'Listen 80', dest: 'Listen 8080'}
+
+  - name: wordpress directory all file copy to /var/www/html
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      remote_src: yes
+    loop:
+      - {src: './wordpress/', dest: '/var/www/html/' }
+      - {src: '/var/www/html/wp-config-sample.php', dest: '/var/www/html/wp-config.php' }
+      
+  - name: wp-config.php file change
+    replace:
+      path: /var/www/html/wp-config.php
+      regexp: "{{ item.src }}"
+      replace: "{{ item.dest }}"
+    loop:
+      - {src: "database_name_here", dest: "wordpress" }
+      - {src: "username_here", dest: "root" }
+      - {src: "password_here", dest: "It12345@" }
+      - {src: "localhost", dest: "10.0.0.4" }
+
+  - name: change setting haproxy
+    replace:
+      path: /etc/haproxy/haproxy.cfg
+      regexp: "{{ item.src }}"
+      replace: "{{ item.dest }}"
+    loop:
+      - {src: ':5000', dest: ':80'}
+      - {src: '127.0.0.1:5001', dest: '10.0.0.2:80'}
+      - {src: '127.0.0.1:5002', dest: '10.0.0.3:8080'}
+  - name: haproxy.cfg line delete
+    lineinfile:
+      path: /etc/haproxy/haproxy.cfg
+      regexp: "{{ item.bobo }}"
+      line: "{{ item.coco }}"
+    loop:
+      - {bobo: '127.0.0.1:5003', coco: ''}
+      - {bobo: '127.0.0.1:5004', coco: ''}
+  - name: httpd & haproxy  service started
+    service:
+      name: "{{ item }}"
+      state: started
+    loop:
+     - httpd
+     - haproxy
+
+  - name: httpd firewall open
+    firewalld:
+      port: "{{ item }}" 
+      state: enabled
+    loop:
+     - 80/tcp
+     - 8080/tcp

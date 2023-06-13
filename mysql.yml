@@ -1,0 +1,44 @@
+---
+- name: install mysql5.7
+  hosts: db1
+  tasks:
+  - name: mysql repo install
+    shell: 'yum install -y http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm'
+    ignore_errors: yes
+  - name: install mysql5.7 server & client
+    yum:
+      name: "{{ item }}"
+      disable_gpg_check: yes
+      state: present
+    loop:
+      - mysql-community-server
+      - mysql-community-client
+  - name: mysql5.7 server started
+    systemd:
+      name: mysqld
+      state: started
+  - name: pip install & mysql-python
+    yum:
+      name:
+        - python3-pip
+        - MySQL-python
+
+  - name: Change mysql root password 
+    shell: |
+      password_match=`awk '/A temporary password is generated for/ {a=$0} END{print a}' /var/log/mysqld.log | awk '{print $(NF)}'`
+      echo $password_match
+      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'It12345@'; flush privileges;"
+      password=It12345@ > /root/.my.cnf
+      mysql -uroot -p$password -e "grant all privileges on *.* to 'root'@'%' IDENTIFIED BY 'It12345@'; flush privileges;"
+  - name: create database wordpress
+    mysql_db:
+      name: wordpress
+      state: present
+      login_user: root
+      login_password: 'It12345@'
+  - name: mysql port open 
+    firewalld:
+      port: 3306/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
