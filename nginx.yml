@@ -13,7 +13,7 @@
     lineinfile:
       path: /etc/nginx/nginx.conf
       insertafter: '^(\s+sroot\s+)/html;'
-      line: '^(\s+index\s+)hoho.html;
+      line: index        hoho.html;
 
   - name: web root directory change
     replace:
