@@ -83,30 +83,22 @@
       block: |
         listen = /run/php-fpm/www.sock
 
-  - name: web root directory change-1
-    blockinfile:
-      path: /etc/nginx/nginx.conf
-      insertafter: '^(\s+listen\s+)80;'
-      block: 
-       # bb 
-              index        index.php;
-               
-
-  - name: blockinfile /etc/nginx/nginx.conf
+   - name: blockinfile /etc/nginx/nginx.conf
     blockinfile:
       path: /etc/nginx/nginx.conf
       marker: "# {mark} ANSIBLE MANAGED BLOCK "
       insertafter: '^(\s+include+\s)/etc/nginx/default.d/* conf;'
       block: |
-        # aaa
-        location ~ \.php$ {
-            try_files $uri =404;
-            fastcgi_pass unix:/run/php-fpm/www.sock;
-            fastcgi_index   index.php;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            include fastcgi_params;
+        #aa
+               index       index.php
+               location ~\.php$ {
+                   try_files $uri =404;
+                   fastcgi_pass unix:/run/php-fpm/www.sock;
+                   fastcgi_index   index.php;
+                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                   include fastcgi_params;
         }
-
+        
   - name: systemd start nginx & php-fpm
     systemd:
       name: "{{ item }}"
