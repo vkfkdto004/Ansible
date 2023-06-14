@@ -96,7 +96,7 @@
     blockinfile:
       path: /etc/nginx/nginx.conf
       marker: "# {mark} ANSIBLE MANAGED BLOCK "
-      insertafter: '^(\s+servername\s+);'
+      insertafter: '^(\s+include+\s)/etc/nginx/default.d/* conf;'
       block: |
         # aaa
         location ~ \.php$ {
