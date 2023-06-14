@@ -87,7 +87,7 @@
     blockinfile:
       path: /etc/nginx/nginx.conf
       marker: "# {mark} ANSIBLE MANAGED BLOCK "
-      insertafter: '^(\s+include+\s)/etc/nginx/default.d/* conf;'
+      insertbefore: '^(\s+error_page+\s)404 /404.html;'
       block: |
         #aa
                index       index.php;
